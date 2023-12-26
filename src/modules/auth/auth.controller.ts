@@ -1,8 +1,16 @@
-import { Body, Controller, Param, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Param,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignInRequestDto } from './dto/sign-in-request.dto';
 import { UsersService } from '../users/users.service';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { JwtGuard } from './guards/jwt.guard';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
 
@@ -14,8 +22,14 @@ export class AuthController {
   ) {}
 
   @Post('sign-in')
-  async signIn(@Body() body: SignInRequestDto) {
-    return this.authService.signIn(body);
+  async signIn(
+    @Body() body: SignInRequestDto,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const result = await this.authService.signIn(body);
+    response.cookie('accessToken', `Bearer ${result.accessToken.token}`);
+    response.cookie('refreshToken', `Bearer ${result.refreshToken.token}`);
+    return result;
   }
 
   @Post('sign-out')

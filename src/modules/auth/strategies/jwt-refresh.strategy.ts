@@ -6,6 +6,13 @@ import { AuthService } from '../auth.service';
 import { ConfigService } from '@nestjs/config';
 import { IDecodedRefreshTokenPayload } from '../interfaces/decoded-refresh-token-payload.interface';
 
+function extractJWTRefreshTokenFromCookie(req: Request): string | null {
+  if (!!req.cookies?.refreshToken?.length) {
+    return req.cookies.refreshToken.replace('Bearer', '').trim();
+  }
+  return null;
+}
+
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(
   Strategy,
@@ -16,14 +23,17 @@ export class JwtRefreshStrategy extends PassportStrategy(
     private readonly configService: ConfigService,
   ) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        extractJWTRefreshTokenFromCookie,
+        ExtractJwt.fromAuthHeaderAsBearerToken(),
+      ]),
       secretOrKey: configService.get('REFRESH_TOKEN_SECRET'),
       passReqToCallback: true,
     });
   }
 
   validate(req: Request, payload: IDecodedRefreshTokenPayload) {
-    const refreshToken = req.get('Authorization').replace('Bearer', '').trim();
+    const refreshToken = req.cookies.refreshToken.replace('Bearer', '').trim();
 
     return this.authService.getMatchedRefreshTokenUser(payload, refreshToken);
   }
