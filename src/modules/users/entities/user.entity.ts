@@ -1,6 +1,7 @@
 import { Exclude } from 'class-transformer';
 import { BaseEntity } from 'src/entities/base.entity';
-import { Entity, Column } from 'typeorm';
+import { RefreshToken } from 'src/modules/auth/entities/refresh-token.entity';
+import { Entity, Column, OneToMany, JoinTable } from 'typeorm';
 
 @Entity()
 export class User extends BaseEntity {
@@ -28,11 +29,8 @@ export class User extends BaseEntity {
   })
   password: string;
 
-  @Column({
-    type: 'varchar',
-    nullable: true,
-  })
-  refreshToken?: string;
+  @OneToMany(() => RefreshToken, (refreshToken) => refreshToken.user)
+  refreshTokens?: RefreshToken[];
 
   // @Column({ type: 'enum', enum: ['m', 'f', 'u'] })
   // /**
