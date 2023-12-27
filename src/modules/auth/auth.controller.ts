@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Param,
   Post,
   Req,
@@ -27,8 +28,20 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response,
   ) {
     const result = await this.authService.signIn(body);
-    response.cookie('accessToken', `Bearer ${result.accessToken.token}`);
-    response.cookie('refreshToken', `Bearer ${result.refreshToken.token}`);
+    response.cookie('accessToken', `Bearer ${result.accessToken.token}`, {
+      httpOnly: true,
+      sameSite: true,
+      secure: true,
+      expires: new Date(Date.now() + result.accessToken.expiresIn),
+      signed: true,
+    });
+    response.cookie('refreshToken', `Bearer ${result.refreshToken.token}`, {
+      httpOnly: true,
+      sameSite: true,
+      secure: true,
+      expires: new Date(Date.now() + result.refreshToken.expiresIn),
+      signed: true,
+    });
     return result;
   }
 
@@ -46,5 +59,13 @@ export class AuthController {
     return this.authService.generateAccessTokenInfo({
       userId: req.user['id'],
     });
+  }
+
+  @Get('csrf')
+  @UseGuards(JwtGuard)
+  async getCsrfToken(@Req() req: Request) {
+    return {
+      csrfToken: req.getCsrfToken(),
+    };
   }
 }

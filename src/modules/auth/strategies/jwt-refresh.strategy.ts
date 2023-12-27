@@ -7,8 +7,8 @@ import { ConfigService } from '@nestjs/config';
 import { IDecodedRefreshTokenPayload } from '../interfaces/decoded-refresh-token-payload.interface';
 
 function extractJWTRefreshTokenFromCookie(req: Request): string | null {
-  if (!!req.cookies?.refreshToken?.length) {
-    return req.cookies.refreshToken.replace('Bearer', '').trim();
+  if (!!req.signedCookies?.refreshToken?.length) {
+    return req.signedCookies.refreshToken.replace('Bearer', '').trim();
   }
   return null;
 }
@@ -33,7 +33,9 @@ export class JwtRefreshStrategy extends PassportStrategy(
   }
 
   validate(req: Request, payload: IDecodedRefreshTokenPayload) {
-    const refreshToken = req.cookies.refreshToken.replace('Bearer', '').trim();
+    const refreshToken = req.signedCookies.refreshToken
+      .replace('Bearer', '')
+      .trim();
 
     return this.authService.getMatchedRefreshTokenUser(payload, refreshToken);
   }

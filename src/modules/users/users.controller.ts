@@ -14,10 +14,12 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersQueryParamsDto } from './dto/users-query-params.dto';
 import { JwtGuard } from '../auth/guards/jwt.guard';
-import { Public } from 'src/decorators/is-public.decorator';
+import { Csrf } from 'src/decorators/csrf.decorator';
+import { IsBypassCsrf } from 'src/decorators/is-bypass-csrf.decorator';
 
 @Controller('users')
 @UseGuards(JwtGuard)
+@Csrf()
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
@@ -27,7 +29,7 @@ export class UsersController {
   }
 
   @Get()
-  @Public()
+  @IsBypassCsrf()
   getUsers(@Query() params: UsersQueryParamsDto) {
     return this.usersService.getUsers(params);
   }

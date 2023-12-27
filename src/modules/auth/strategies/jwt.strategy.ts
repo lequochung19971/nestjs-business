@@ -6,8 +6,8 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { UsersRepository } from 'src/modules/users/users.repository';
 
 function extractJWTFromCookie(req: Request): string | null {
-  if (!!req.cookies?.accessToken?.length) {
-    return req.cookies.accessToken.replace('Bearer', '').trim();
+  if (!!req.signedCookies?.accessToken?.length) {
+    return req.signedCookies.accessToken.replace('Bearer', '').trim();
   }
   return null;
 }
@@ -23,7 +23,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         extractJWTFromCookie,
         ExtractJwt.fromAuthHeaderAsBearerToken(),
       ]),
-      secretOrKey: configService.get<string>('REFRESH_TOKEN_SECRET'),
+      secretOrKey: configService.get<string>('ACCESS_TOKEN_SECRET'),
     });
   }
 
