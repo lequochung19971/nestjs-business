@@ -13,7 +13,7 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersQueryParamsDto } from './dto/users-query-params.dto';
-import { JwtGuard } from '../auth/guards/jwt.guard';
+import { JwtGuard } from '../../guards/jwt.guard';
 import { Csrf } from 'src/decorators/csrf.decorator';
 import { IsBypassCsrf } from 'src/decorators/is-bypass-csrf.decorator';
 
