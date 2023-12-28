@@ -74,6 +74,15 @@ export class AuthService {
     });
   }
 
+  async signOut(userId: string, requestId: string) {
+    return this.refreshTokensRepository.delete({
+      user: {
+        id: userId,
+      },
+      requestId,
+    });
+  }
+
   async getAuthenticatedUser(email: string, password: string): Promise<User> {
     try {
       const user = await this.usersRepository.findOneBy({

@@ -12,7 +12,7 @@ import { Order } from 'src/enums/order.enum';
 export class QueryParamsDto {
   @IsOptional()
   @IsEnum(Order)
-  readonly order?;
+  readonly order?: Order;
 
   @IsOptional()
   readonly orderColumn?: string;
@@ -20,18 +20,18 @@ export class QueryParamsDto {
   @Type(() => Number)
   @IsNumber()
   @Min(0)
-  readonly page;
+  readonly page: number;
 
   @Type(() => Number)
   @IsNumber()
   @Min(1)
   @Max(50)
-  readonly take;
+  readonly take: number;
 
   @Type(() => Boolean)
   @IsBoolean()
   @IsOptional()
-  includeTotalCount = false;
+  includeTotalCount?: boolean;
 
   get skip() {
     return (this.page - 1) * this.take;

@@ -16,14 +16,30 @@ import { UsersQueryParamsDto } from './dto/users-query-params.dto';
 import { JwtGuard } from '../../guards/jwt.guard';
 import { Csrf } from 'src/decorators/csrf.decorator';
 import { IsBypassCsrf } from 'src/decorators/is-bypass-csrf.decorator';
+import { ApiHeader, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @Controller('users')
 @UseGuards(JwtGuard)
 @Csrf()
+@ApiTags('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
+  /**
+   * @desc
+   * Describe API with `ApiOperation`
+   * @caveat
+   * - Almost developers will ignore to describe because they think that
+   * they can understand API when looking API and body, but there will be a problem
+   * for a big project.
+   */
+  @ApiOperation({
+    summary: 'Create new user',
+  })
+  @ApiHeader({
+    name: 'csrf-token',
+  })
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.createUser(createUserDto);
   }

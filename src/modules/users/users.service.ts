@@ -55,7 +55,6 @@ export class UsersService {
       .take(params.take)
       .skip(params.skip)
       .getMany();
-
     return toQueryResponseDto(UserDto, {
       entity: users,
       meta: {

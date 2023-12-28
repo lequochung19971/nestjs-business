@@ -1,8 +1,10 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
-  Param,
+  HttpCode,
+  HttpStatus,
   Post,
   Req,
   Res,
@@ -10,18 +12,25 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignInRequestDto } from './dto/sign-in-request.dto';
-import { UsersService } from '../users/users.service';
 import { Request, Response } from 'express';
 import { JwtGuard } from '../../guards/jwt.guard';
 import { JwtRefreshGuard } from '../../guards/jwt-refresh.guard';
+import { ApiHeader, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Csrf } from 'src/decorators/csrf.decorator';
+import { IDecodedRefreshTokenPayload } from './interfaces/decoded-refresh-token-payload.interface';
+import { JwtService } from '@nestjs/jwt';
 
 @Controller('auth')
+@ApiTags('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private readonly usersService: UsersService,
+    private readonly jwtService: JwtService,
   ) {}
 
+  @ApiOperation({
+    summary: 'Sign In',
+  })
   @Post('sign-in')
   async signIn(
     @Body() body: SignInRequestDto,
@@ -45,15 +54,36 @@ export class AuthController {
     return result;
   }
 
+  @ApiOperation({
+    summary: 'Sign Out',
+  })
   @Post('sign-out')
+  @Csrf()
   @UseGuards(JwtGuard)
+  @HttpCode(HttpStatus.OK)
   async signOut(@Req() req: Request) {
-    return this.usersService.updateUser(req.user['id'], {
-      refreshToken: null,
-    });
+    const refreshToken = req.signedCookies['refreshToken'] as string;
+
+    if (!refreshToken) {
+      throw new BadRequestException('There is no refreshToken');
+    }
+    const refreshTokenPayload: IDecodedRefreshTokenPayload =
+      this.jwtService.decode(refreshToken.split(' ')[1]);
+
+    return this.authService.signOut(
+      refreshTokenPayload.userId,
+      refreshTokenPayload.requestId,
+    );
   }
 
+  @ApiOperation({
+    summary: 'Refresh Access Token',
+  })
+  @ApiHeader({
+    name: 'csrf-token',
+  })
   @Post('refresh')
+  @Csrf()
   @UseGuards(JwtRefreshGuard)
   async refresh(@Req() req: Request) {
     return this.authService.generateAccessTokenInfo({
@@ -61,6 +91,10 @@ export class AuthController {
     });
   }
 
+  @ApiOperation({
+    summary: 'Get CSRF Token',
+    description: 'Get CSRF Token right after Sign in',
+  })
   @Get('csrf')
   @UseGuards(JwtGuard)
   async getCsrfToken(@Req() req: Request) {

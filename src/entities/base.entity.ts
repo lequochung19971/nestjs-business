@@ -25,7 +25,7 @@ export abstract class BaseEntity {
   })
   deletedAt: Date;
 
-  toDto<DTO extends Constructor, T>(dtoClass: DTO): T {
+  toDto<DTO>(dtoClass: { new (...args: any[]): DTO }): DTO {
     return new dtoClass(this);
   }
 }

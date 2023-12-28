@@ -18,11 +18,19 @@ const secretKey = 'csrfSecret';
 
 export const csrf = () => {
   return function (req: Request, res: Response, next: NextFunction) {
+    const isSignIn = req.path === '/auth/sign-in';
+
     let secret = getSecretFromRequest(req);
-    if (!secret) {
+
+    /**
+     * If system does not have secret in header or user sign,
+     * system will create a csrf secret
+     */
+    if (!secret || isSignIn) {
       secret = tokens.secretSync();
       setSecret(req, res, secret);
     }
+
     req.getCsrfToken = () => {
       const token = tokens.create(secret);
       return token;

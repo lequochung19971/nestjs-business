@@ -33,6 +33,4 @@ export class CreateUserDto {
   @IsNotEmpty()
   @IsPassword()
   password: string;
-
-  refreshToken: string;
 }
