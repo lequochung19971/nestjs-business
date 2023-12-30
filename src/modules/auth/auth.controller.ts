@@ -10,15 +10,15 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
+import { Request, Response } from 'express';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Csrf } from 'src/decorators/csrf.decorator';
+import { JwtService } from '@nestjs/jwt';
 import { AuthService } from './auth.service';
 import { SignInRequestDto } from './dto/sign-in-request.dto';
-import { Request, Response } from 'express';
 import { JwtGuard } from '../../guards/jwt.guard';
 import { JwtRefreshGuard } from '../../guards/jwt-refresh.guard';
-import { ApiHeader, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { Csrf } from 'src/decorators/csrf.decorator';
 import { IDecodedRefreshTokenPayload } from './interfaces/decoded-refresh-token-payload.interface';
-import { JwtService } from '@nestjs/jwt';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -62,7 +62,7 @@ export class AuthController {
   @UseGuards(JwtGuard)
   @HttpCode(HttpStatus.OK)
   async signOut(@Req() req: Request) {
-    const refreshToken = req.signedCookies['refreshToken'] as string;
+    const refreshToken = req.signedCookies.refreshToken as string;
 
     if (!refreshToken) {
       throw new BadRequestException('There is no refreshToken');
@@ -79,14 +79,13 @@ export class AuthController {
   @ApiOperation({
     summary: 'Refresh Access Token',
   })
-  @ApiHeader({
-    name: 'csrf-token',
-  })
   @Post('refresh')
   @Csrf()
   @UseGuards(JwtRefreshGuard)
+  @HttpCode(HttpStatus.OK)
   async refresh(@Req() req: Request) {
     return this.authService.generateAccessTokenInfo({
+      // eslint-disable-next-line dot-notation
       userId: req.user['id'],
     });
   }
@@ -97,6 +96,7 @@ export class AuthController {
   })
   @Get('csrf')
   @UseGuards(JwtGuard)
+  @HttpCode(HttpStatus.OK)
   async getCsrfToken(@Req() req: Request) {
     return {
       csrfToken: req.getCsrfToken(),

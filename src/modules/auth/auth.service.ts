@@ -3,25 +3,26 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { User } from '../users/entities/user.entity';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { SALT_ROUND } from 'src/constants/salt-round.constant';
+import { DataSource } from 'typeorm';
+import { v4 as uuidv4 } from 'uuid';
+import { User } from '../users/entities/user.entity';
 import { TokenDto } from './dto/token.dto';
-import { UsersRepository } from '../users/users.repository';
+import { UserRepository } from '../users/user.repository';
 import { SignInRequestDto } from './dto/sign-in-request.dto';
 import { SignInResponseDto } from './dto/sing-in-response.dto';
 import { UserDto } from '../users/dto/user.dto';
-import { SALT_ROUND } from 'src/constants/salt-round.constant';
 import { RefreshTokensRepository } from './refresh-tokens.repository';
-import { DataSource } from 'typeorm';
 import { RefreshToken } from './entities/refresh-token.entity';
-import { v4 as uuidv4 } from 'uuid';
 import { IDecodedRefreshTokenPayload } from './interfaces/decoded-refresh-token-payload.interface';
+
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly usersRepository: UsersRepository,
+    private readonly userRepository: UserRepository,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly refreshTokensRepository: RefreshTokensRepository,
@@ -85,7 +86,7 @@ export class AuthService {
 
   async getAuthenticatedUser(email: string, password: string): Promise<User> {
     try {
-      const user = await this.usersRepository.findOneBy({
+      const user = await this.userRepository.findOneBy({
         email,
       });
       const isMatched = await bcrypt.compare(password, user.password);
@@ -102,7 +103,7 @@ export class AuthService {
     refreshTokenPayload: IDecodedRefreshTokenPayload,
     refreshToken: string,
   ) {
-    const user = await this.usersRepository.findOneBy({
+    const user = await this.userRepository.findOneBy({
       id: refreshTokenPayload.userId,
     });
 

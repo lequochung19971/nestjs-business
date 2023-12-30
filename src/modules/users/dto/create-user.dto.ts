@@ -1,25 +1,21 @@
-import {
-  IsEmail,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  MinLength,
-} from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { StringField } from 'src/decorators/fields/string-field.decorator';
 import { IsPassword } from 'src/decorators/is-password.decorator';
 
 export class CreateUserDto {
-  @IsNotEmpty()
-  @MinLength(2, {
-    message: 'Name must have at least 2 characters.',
+  @StringField({
+    minLength: 2,
   })
+  @IsNotEmpty()
   name: string;
 
-  @IsNotEmpty()
-  @MinLength(2, {
-    message: 'Name must have at least 2 characters.',
+  @StringField({
+    minLength: 2,
   })
+  @IsNotEmpty()
   username: string;
 
+  @StringField()
   @IsNotEmpty()
   @IsEmail(
     {
@@ -29,7 +25,7 @@ export class CreateUserDto {
   )
   email: string;
 
-  @IsString()
+  @StringField()
   @IsNotEmpty()
   @IsPassword()
   password: string;

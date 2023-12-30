@@ -1,10 +1,12 @@
 import { Type } from 'class-transformer';
+import { NumberField } from 'src/decorators/fields/number-field.decorator';
+import { StringField } from 'src/decorators/fields/string-field.decorator';
 
 export class TokenDto {
-  @Type(() => Number)
+  @NumberField()
   expiresIn: number;
 
-  @Type(() => String)
+  @StringField()
   token: string;
 
   constructor(data: { expiresIn: number; token: string }) {

@@ -1,5 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { Request } from 'express';
 import { Observable } from 'rxjs';
 import {
   getCsrfFromRequest,
@@ -22,15 +23,16 @@ export class CsrfGuard implements CanActivate {
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
+    const request = context.switchToHttp().getRequest<Request>();
     const isByPass = this.reflector.getAllAndOverride<boolean>(
       IS_BYPASS_CSRF_KEY,
       [context.getHandler(), context.getClass()],
     );
-    if (isByPass) {
+
+    if (isByPass || request.ignoreCsrf) {
       return true;
     }
 
-    const request = context.switchToHttp().getRequest();
     const secret = getSecretFromRequest(request);
     const token = getCsrfFromRequest(request);
     if (!secret || !token) {

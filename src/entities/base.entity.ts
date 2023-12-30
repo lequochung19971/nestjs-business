@@ -1,5 +1,6 @@
-import { Constructor } from 'src/types/constructor';
+import { plainToClass } from 'class-transformer';
 import {
+  Column,
   CreateDateColumn,
   DeleteDateColumn,
   PrimaryGeneratedColumn,
@@ -25,7 +26,7 @@ export abstract class BaseEntity {
   })
   deletedAt: Date;
 
-  toDto<DTO>(dtoClass: { new (...args: any[]): DTO }): DTO {
-    return new dtoClass(this);
+  toDto<DTO>(DtoClass: { new (...args: any[]): DTO }): DTO {
+    return plainToClass(DtoClass, this);
   }
 }

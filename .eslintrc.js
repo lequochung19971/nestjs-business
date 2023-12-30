@@ -7,6 +7,8 @@ module.exports = {
   },
   plugins: ['@typescript-eslint/eslint-plugin'],
   extends: [
+    'airbnb',
+    'airbnb/hooks',
     'plugin:@typescript-eslint/recommended',
     'plugin:prettier/recommended',
   ],
@@ -22,5 +24,18 @@ module.exports = {
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/no-unused-vars': 'warn',
+    'import/prefer-default-export': 'off',
+    'import/no-unresolved': 'off',
+    'no-param-reassign': 'off',
+    'no-use-before-define': 'warn',
+    'no-useless-constructor': 'off',
+    'no-empty-function': 'off',
+    'import/extensions': 'off',
+    'import/no-extraneous-dependencies': [
+      'off',
+      { devDependencies: ['**/*.test.js', '**/*.spec.js'] },
+    ],
+    'no-underscore-dangle': 'off',
+    'class-methods-use-this': 'off',
   },
 };

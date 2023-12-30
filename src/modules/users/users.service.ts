@@ -1,18 +1,20 @@
 import { ConflictException, Injectable } from '@nestjs/common';
+import { toQueryResponseDto } from 'src/utils/toDtoArray';
+import * as bcrypt from 'bcryptjs';
+import { SALT_ROUND } from 'src/constants/salt-round.constant';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersQueryParamsDto } from './dto/users-query-params.dto';
-import { UserNotFound } from './exceptions/user-not-found';
 import { UserDto } from './dto/user.dto';
-import { toQueryResponseDto } from 'src/utils/toDtoArray';
-import * as bcrypt from 'bcryptjs';
-import { UsersRepository } from './users.repository';
-import { SALT_ROUND } from 'src/constants/salt-round.constant';
+import { UserRepository } from './user.repository';
+import { UserNotFound } from './exceptions/user-not-found';
+
 @Injectable()
 export class UsersService {
   private SALT_ROUND = 11;
 
-  constructor(private readonly userRepository: UsersRepository) {}
+  constructor(private readonly userRepository: UserRepository) {}
+
   async createUser(createUserDto: CreateUserDto) {
     const existedUser = await this.userRepository.findOne({
       where: [
@@ -43,14 +45,22 @@ export class UsersService {
   }
 
   async getUsers(params: UsersQueryParamsDto) {
-    const queryBuilder = this.userRepository.createQueryBuilder('user');
+    let queryBuilder = this.userRepository.createQueryBuilder('user');
 
     let totalCount: number;
     if (params.includeTotalCount) {
       totalCount = await queryBuilder.getCount();
     }
 
+    if (params.search?.columns?.length && params.search?.value) {
+      queryBuilder = queryBuilder.search(
+        params.search.columns,
+        params.search.value,
+      );
+    }
+
     const users = await queryBuilder
+
       .orderBy(params.orderColumn, params.order)
       .take(params.take)
       .skip(params.skip)
@@ -90,6 +100,6 @@ export class UsersService {
   }
 
   deleteUser(id: string) {
-    return `This action removes a #${id} user`;
+    this.userRepository.softDelete(id);
   }
 }

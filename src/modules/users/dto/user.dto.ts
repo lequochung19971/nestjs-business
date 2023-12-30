@@ -1,20 +1,13 @@
 import { BaseDto } from 'src/dtos/base.dto';
-import { User } from '../entities/user.entity';
+import { StringField } from 'src/decorators/fields/string-field.decorator';
 
 export class UserDto extends BaseDto {
+  @StringField()
   name: string;
 
+  @StringField()
   username: string;
 
+  @StringField()
   email: string;
-
-  constructor(user: User) {
-    super();
-    this.id = user.id;
-    this.name = user.name;
-    this.username = user.username;
-    this.email = user.email;
-    this.createdAt = user.createdAt;
-    this.updatedAt = user.updatedAt;
-  }
 }

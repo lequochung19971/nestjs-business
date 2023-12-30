@@ -1,9 +1,10 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
+import { AppModule } from './app.module';
 import { csrf } from './common/csrf';
-import { setupSwagger } from './setup-swagger';
+import { setupSwagger, ignoreCsrfForSwaggerRequest } from './setup-swagger';
+import 'src/common/query-build-methods';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -23,6 +24,7 @@ async function bootstrap() {
 
   app.use(cookieParser(process.env.COOKIE_SECRET));
   app.use(csrf());
+  app.use(ignoreCsrfForSwaggerRequest());
   await app.listen(3000);
 }
 bootstrap();

@@ -4,10 +4,13 @@ import {
   IsEnum,
   IsNumber,
   IsOptional,
+  IsString,
   Max,
   Min,
 } from 'class-validator';
 import { Order } from 'src/enums/order.enum';
+import { NumberField } from 'src/decorators/fields/number-field.decorator';
+import { SearchDto } from './search.dto';
 
 export class QueryParamsDto {
   @IsOptional()
@@ -17,21 +20,24 @@ export class QueryParamsDto {
   @IsOptional()
   readonly orderColumn?: string;
 
-  @Type(() => Number)
-  @IsNumber()
+  @NumberField()
   @Min(0)
   readonly page: number;
 
-  @Type(() => Number)
-  @IsNumber()
-  @Min(1)
-  @Max(50)
+  @NumberField({
+    min: 1,
+    max: 50,
+  })
   readonly take: number;
 
   @Type(() => Boolean)
   @IsBoolean()
   @IsOptional()
   includeTotalCount?: boolean;
+
+  @Type(() => SearchDto)
+  @IsOptional()
+  search?: SearchDto;
 
   get skip() {
     return (this.page - 1) * this.take;

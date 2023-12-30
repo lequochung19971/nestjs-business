@@ -8,20 +8,22 @@ import {
   Delete,
   Query,
   UseGuards,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
+import { Csrf } from 'src/decorators/csrf.decorator';
+import { IsBypassCsrf } from 'src/decorators/is-bypass-csrf.decorator';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersQueryParamsDto } from './dto/users-query-params.dto';
 import { JwtGuard } from '../../guards/jwt.guard';
-import { Csrf } from 'src/decorators/csrf.decorator';
-import { IsBypassCsrf } from 'src/decorators/is-bypass-csrf.decorator';
-import { ApiHeader, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @Controller('users')
+@ApiTags('users')
 @UseGuards(JwtGuard)
 @Csrf()
-@ApiTags('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
@@ -37,31 +39,45 @@ export class UsersController {
   @ApiOperation({
     summary: 'Create new user',
   })
-  @ApiHeader({
-    name: 'csrf-token',
-  })
+  @HttpCode(HttpStatus.OK)
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.createUser(createUserDto);
   }
 
+  @ApiOperation({
+    summary: 'Query Users',
+  })
   @Get()
   @IsBypassCsrf()
+  @HttpCode(HttpStatus.OK)
   getUsers(@Query() params: UsersQueryParamsDto) {
     return this.usersService.getUsers(params);
   }
 
+  @ApiOperation({
+    summary: 'Get a user by id',
+  })
   @Get(':id')
+  @HttpCode(HttpStatus.OK)
   getUser(@Param('id') id: string) {
     return this.usersService.getUser(id);
   }
 
+  @ApiOperation({
+    summary: 'Update user partially',
+  })
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  @HttpCode(HttpStatus.OK)
+  updateUser(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.updateUser(id, updateUserDto);
   }
 
+  @ApiOperation({
+    summary: 'Soft delete user by id',
+  })
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  @HttpCode(HttpStatus.OK)
+  deleteUser(@Param('id') id: string) {
     return this.usersService.deleteUser(id);
   }
 }

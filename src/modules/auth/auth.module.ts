@@ -5,7 +5,7 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
-import { UsersRepository } from '../users/users.repository';
+import { UserRepository } from '../users/user.repository';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { UsersService } from '../users/users.service';
 import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
@@ -24,7 +24,7 @@ import { RefreshToken } from './entities/refresh-token.entity';
     JwtStrategy,
     JwtRefreshStrategy,
     ConfigService,
-    UsersRepository,
+    UserRepository,
     UsersService,
     RefreshTokensRepository,
   ],
