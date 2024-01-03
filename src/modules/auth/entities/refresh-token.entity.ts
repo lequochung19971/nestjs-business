@@ -14,11 +14,6 @@ export class RefreshToken extends BaseEntity {
   })
   expiresIn: number;
 
-  @Column({
-    type: 'varchar',
-  })
-  requestId: string;
-
   @ManyToOne(() => User, (user) => user.refreshTokens)
   user: User;
 }

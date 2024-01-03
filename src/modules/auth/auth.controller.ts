@@ -72,7 +72,7 @@ export class AuthController {
 
     return this.authService.signOut(
       refreshTokenPayload.userId,
-      refreshTokenPayload.requestId,
+      refreshTokenPayload.id,
     );
   }
 

@@ -12,4 +12,9 @@ export class CreateCategoryDto {
 
   @StringField()
   parentId?: string;
+
+  @StringField({
+    each: true,
+  })
+  mediaIds?: string[];
 }

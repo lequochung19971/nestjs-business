@@ -5,7 +5,7 @@ import { classToClassFromExist, plainToClass } from 'class-transformer';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { CategoryRepository } from './category.repository';
-import { CategoriesQueryParamsDto } from './dto/categories-query-params.dto';
+import { CategoryQueryParamsDto } from './dto/category-query-params.dto';
 import { CategoryDto } from './dto/category.dto';
 import { Category } from './entities/category.entity';
 import { CategoryNotFound } from './exceptions/category-not-found';
@@ -26,12 +26,17 @@ export class CategoriesService {
             id: createCategoryDto.parentId,
           }
         : undefined,
+      media: createCategoryDto.mediaIds?.map((mediaId) => ({
+        id: mediaId,
+      })),
     });
     return this.categoryRepository.save(category);
   }
 
-  async getCategories(params: CategoriesQueryParamsDto) {
-    let queryBuilder = this.categoryRepository.createQueryBuilder('category');
+  async getCategories(params: CategoryQueryParamsDto) {
+    let queryBuilder = this.categoryRepository
+      .createQueryBuilder('category')
+      .leftJoinAndSelect('category.media', 'file');
 
     if (params.search?.columns?.length && params.search?.value) {
       queryBuilder = queryBuilder.search(
@@ -62,7 +67,14 @@ export class CategoriesService {
   }
 
   async getCategory(id: string, includedChildren = true) {
-    const categoryEntity = await this.categoryRepository.findOneBy({ id });
+    const categoryEntity = await this.categoryRepository.findOne({
+      relations: {
+        media: true,
+      },
+      where: {
+        id,
+      },
+    });
 
     if (!categoryEntity) {
       throw new CategoryNotFound();
@@ -94,12 +106,20 @@ export class CategoriesService {
             id: updateCategoryDto.parentId,
           }
         : undefined,
+      media: updateCategoryDto.mediaIds?.map((mediaId) => ({
+        id: mediaId,
+      })),
     });
 
     return this.categoryRepository.save(categoryEntity);
   }
 
   async deleteCategory(id: string) {
+    const category = await this.categoryRepository.findOneBy({
+      id,
+    });
+
+    if (!category) throw new CategoryNotFound();
     this.categoryRepository.softDelete(id);
   }
 }

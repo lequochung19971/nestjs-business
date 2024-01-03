@@ -4,7 +4,7 @@ import * as bcrypt from 'bcryptjs';
 import { SALT_ROUND } from 'src/constants/salt-round.constant';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { UsersQueryParamsDto } from './dto/users-query-params.dto';
+import { UserQueryParamsDto } from './dto/user-query-params.dto';
 import { UserDto } from './dto/user.dto';
 import { UserRepository } from './user.repository';
 import { UserNotFound } from './exceptions/user-not-found';
@@ -44,7 +44,7 @@ export class UsersService {
     this.userRepository.save(user);
   }
 
-  async getUsers(params: UsersQueryParamsDto) {
+  async getUsers(params: UserQueryParamsDto) {
     let queryBuilder = this.userRepository.createQueryBuilder('user');
 
     let totalCount: number;
@@ -99,7 +99,11 @@ export class UsersService {
     await this.userRepository.save(userEntity);
   }
 
-  deleteUser(id: string) {
+  async deleteUser(id: string) {
+    const user = await this.userRepository.findOneBy({ id });
+
+    if (!user) throw new UserNotFound();
+
     this.userRepository.softDelete(id);
   }
 }

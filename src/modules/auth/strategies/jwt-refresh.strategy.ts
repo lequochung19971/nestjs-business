@@ -2,12 +2,12 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { Request } from 'express';
 import { Injectable } from '@nestjs/common';
-import { AuthService } from '../auth.service';
 import { ConfigService } from '@nestjs/config';
+import { AuthService } from '../auth.service';
 import { IDecodedRefreshTokenPayload } from '../interfaces/decoded-refresh-token-payload.interface';
 
 function extractJWTRefreshTokenFromCookie(req: Request): string | null {
-  if (!!req.signedCookies?.refreshToken?.length) {
+  if (req.signedCookies?.refreshToken?.length) {
     return req.signedCookies.refreshToken.replace('Bearer', '').trim();
   }
   return null;
@@ -33,9 +33,8 @@ export class JwtRefreshStrategy extends PassportStrategy(
   }
 
   validate(req: Request, payload: IDecodedRefreshTokenPayload) {
-    const refreshToken = req.signedCookies.refreshToken
-      .replace('Bearer', '')
-      .trim();
+    const refreshToken = req.signedCookies.refreshToken.split(' ')[1];
+
     const user = this.authService.getMatchedRefreshTokenUser(
       payload,
       refreshToken,

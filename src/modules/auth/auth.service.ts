@@ -38,10 +38,10 @@ export class AuthService {
       userId: user.id,
     });
 
-    const requestId = uuidv4();
+    const uuid = uuidv4();
     const refreshToken = await this.generateRefreshTokenInfo({
       userId: user.id,
-      requestId,
+      id: uuid,
     });
 
     const queryRunner = this.dataSource.createQueryRunner();
@@ -54,10 +54,9 @@ export class AuthService {
         SALT_ROUND,
       );
       const refreshTokenEntity = this.refreshTokensRepository.create({
+        id: uuid,
         hashedToken: hashedRefreshToken,
         expiresIn: refreshToken.expiresIn,
-        requestId,
-        user,
       });
       await queryRunner.manager.save(RefreshToken, refreshTokenEntity);
       await queryRunner.commitTransaction();
@@ -75,12 +74,9 @@ export class AuthService {
     });
   }
 
-  async signOut(userId: string, requestId: string) {
+  async signOut(userId: string, id: string) {
     return this.refreshTokensRepository.delete({
-      user: {
-        id: userId,
-      },
-      requestId,
+      id,
     });
   }
 
@@ -108,10 +104,7 @@ export class AuthService {
     });
 
     const refreshTokenEntity = await this.refreshTokensRepository.findOneBy({
-      requestId: refreshTokenPayload.requestId,
-      user: {
-        id: refreshTokenPayload.userId,
-      },
+      id: refreshTokenPayload.id,
     });
 
     if (!user || !refreshTokenEntity) {

@@ -1,6 +1,5 @@
 import { plainToClass } from 'class-transformer';
 import {
-  Column,
   CreateDateColumn,
   DeleteDateColumn,
   PrimaryGeneratedColumn,

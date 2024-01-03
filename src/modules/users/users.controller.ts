@@ -17,7 +17,7 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { UsersQueryParamsDto } from './dto/users-query-params.dto';
+import { UserQueryParamsDto } from './dto/user-query-params.dto';
 import { JwtGuard } from '../../guards/jwt.guard';
 
 @Controller('users')
@@ -50,7 +50,7 @@ export class UsersController {
   @Get()
   @IsBypassCsrf()
   @HttpCode(HttpStatus.OK)
-  getUsers(@Query() params: UsersQueryParamsDto) {
+  getUsers(@Query() params: UserQueryParamsDto) {
     return this.usersService.getUsers(params);
   }
 

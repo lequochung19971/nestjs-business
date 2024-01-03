@@ -1,5 +1,14 @@
 import { BaseEntity } from 'src/entities/base.entity';
-import { Column, Entity, Tree, TreeChildren, TreeParent } from 'typeorm';
+import { File } from 'src/modules/files/entities/file.entity';
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  Tree,
+  TreeChildren,
+  TreeParent,
+} from 'typeorm';
 
 @Entity()
 @Tree('closure-table')
@@ -20,4 +29,8 @@ export class Category extends BaseEntity {
 
   @TreeChildren()
   children: Category[];
+
+  @ManyToMany(() => File)
+  @JoinTable()
+  media: File[];
 }

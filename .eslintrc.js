@@ -37,5 +37,6 @@ module.exports = {
     ],
     'no-underscore-dangle': 'off',
     'class-methods-use-this': 'off',
+    'no-shadow': 'off',
   },
 };
